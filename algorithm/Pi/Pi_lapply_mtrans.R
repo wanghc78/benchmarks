@@ -10,10 +10,9 @@ setup <- function(args=c('10000000')) {
     if(is.na(n)){ n <- 10000000L }
         
     rdata <- runif(n*2) 
-    #list_data <- lapply(1:n, function(i){rdata[(2*i-1):(2*i)]})
-    source('../vecutil.R')
-    dim(rdata) <- c(n, 2)
-    return(rdata)
+    list_data <- lapply(1:n, function(i){rdata[(2*i-1):(2*i)]})
+    library(vecapply)
+    return(list_data)
 }
 
 run <- function(list_data) {
@@ -23,8 +22,8 @@ run <- function(list_data) {
         ifelse((V_aSample[,1]^2+V_aSample[,2]^2 < 1), 1, 0) 
     }
     
-    vecData <- list_data
-    #vecData <- list2vec(list_data)
+    #vecData <- list_data
+    vecData <- va_list2vec(list_data)
     vecSampleOut <- V_sample.func(vecData)
     
     reduceCount <- sum(vecSampleOut)

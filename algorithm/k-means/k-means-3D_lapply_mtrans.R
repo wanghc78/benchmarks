@@ -20,7 +20,7 @@ setup <- function(args=c('100000', '10', '10')) {
     data <- matrix(rnorm(3*n, sd = 0.3) + mean_shift, ncol=3)
     #now change data into list structure
     list_data <- lapply(1:n, function(i) data[i,])
-    source('../vecutil.R')
+    library(vecapply)
     return(list(data=list_data, clusters=clusters, niter=niter))
 }
 
@@ -33,22 +33,22 @@ run <- function(data) {
     V_dist.func <- function(V_pts){ 
         #org inner only change V_pts related one
         dist.inner.func <- function(center){
-            rowSums((V_pts - vecData(center, V_pts))^2)
+            rowSums((V_pts - va_repVecData(center, V_pts))^2)
         }
         #here lapply will be changed to apply
         #simple vec
-        V_dist.inner.func <- rawVecFun(dist.inner.func)
+        V_dist.inner.func <- va_rawVecFun(dist.inner.func)
         
         #complex vectorize. Just replace the original one's name
         #V_dist.inner.func <- function(V_centers){
-        #    rowSums((colVecData(V_pts, V_centers) - vecData(V_centers, V_pts))^2, dims=2)
+        #    rowSums((va_colRepVecData(V_pts, V_centers) - va_repVecData(V_centers, V_pts))^2, dims=2)
         #}
         
         V_dist.inner.func(V_centers)
     }
     
-    V_pts <- list2vec(pts)
-    V_centers <- list2vec(centers) #pick 10 as default centers
+    V_pts <- va_list2vec(pts)
+    V_centers <- va_list2vec(centers) #pick 10 as default centers
     size <- integer(clusters);
     for(i in 1:niter) {
         #map each item into distance to 10 centers.

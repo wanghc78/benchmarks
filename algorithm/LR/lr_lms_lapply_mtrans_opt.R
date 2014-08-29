@@ -17,7 +17,7 @@ setup <- function(args=c('1000000', '100')) {
     y<- x + rnorm(n) + 1;
     yx <- lapply(1:n, function(i){c(y[i],x[i])})
     data <- list(yx=yx, niter=niter);
-    source('../vecutil.R')
+    library(vecapply)
     return(data)
 }
 
@@ -25,8 +25,8 @@ run <- function(data) {
     
     V_grad.func <- function(V_yx) {
         V_y <- V_yx[,1]
-        V_x <- cbind(vecData(1, V_yx), V_yx[,2])  # add 1 to est interception
-        V_error <- (rowSums(V_x  * vecData(theta, V_x)) - V_y)
+        V_x <- cbind(va_repVecData(1, V_yx), V_yx[,2])  # add 1 to est interception
+        V_error <- (rowSums(V_x  * va_repVecData(theta, V_x)) - V_y)
         V_delta <- V_error * V_x
         return(V_delta)
     }
@@ -42,11 +42,11 @@ run <- function(data) {
     niter<-data$niter
     theta <- double(length(yx[[1]])) #initial guess as 0
     alpha <- 0.05 # small step
-    V_yx <- list2vec(yx)
+    V_yx <- va_list2vec(yx)
     for(iter in 1:niter) {
         V_delta <- V_grad.func(V_yx)
         #cat('delta =', delta, '\n')
-        theta <- theta - alpha * colSums(V_delta) / vecLen(V_delta)
+        theta <- theta - alpha * colSums(V_delta) / va_vecLen(V_delta)
         cat('theta =', theta, '\n')
         #print(cost(X,y, theta))
     }

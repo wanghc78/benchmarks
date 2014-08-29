@@ -20,7 +20,7 @@ setup <- function(args=c('100000', '10', '10')) {
     data <- matrix(rnorm(3*n, sd = 0.3) + mean_shift, ncol=3)
     #now change data into list structure
     list_data <- lapply(1:n, function(i) data[i,])
-    source('../vecutil.R')
+    library(vecapply)
     return(list(data=list_data, clusters=clusters, niter=niter))
 }
 
@@ -32,7 +32,7 @@ run <- function(data) {
     
     dist.func <- function(ptr){ 
         V_dist.inner.func <- function(V_centers){
-            rowSums((vecData(ptr, V_centers) - V_centers)^2)
+            rowSums((va_repVecData(ptr, V_centers) - V_centers)^2)
         }
         V_dist.inner.func(V_centers)
     }
@@ -41,7 +41,7 @@ run <- function(data) {
     size <- integer(clusters)
     for(i in 1:niter) {
         #map each item into distance to 10 centers.
-        V_centers <- list2vec(centers)
+        V_centers <- va_list2vec(centers)
         dists <- lapply(pts, dist.func)
         ids <- lapply(dists, which.min)
         #calculate the new centers through mean

@@ -33,7 +33,7 @@ setup <- function(args=c('10000', '1000', '10')) {
     data <-list(train_set=list_train_set, 
             test_set=list_test_set,
             clusters=clusters)
-    source('../vecutil.R')
+    library(vecapply)
     return(data)
 }
 
@@ -52,7 +52,7 @@ run <- function(data) {
     NN.fun <- function(test_item) {
         #calculate the distance to all 
         V_dist.func<-function(V_train){
-            rowSums((V_train$val - vecData(test_item$val, V_train$val))^2)
+            rowSums((V_train$val - va_repVecData(test_item$val, V_train$val))^2)
         }
         
         V_dists <- V_dist.func(vec_train)
@@ -63,7 +63,7 @@ run <- function(data) {
         test_item
     }
     #note moved here
-    vec_train<-list2vec(list_train) #vec_train$val vec_train$label  
+    vec_train<- va_list2vec(list_train) #vec_train$val vec_train$label  
     out_list_test <- lapply(list_test, NN.fun)
     
     #get the cl

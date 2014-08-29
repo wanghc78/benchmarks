@@ -19,7 +19,7 @@ setup <- function(args=c('100000', '10', '10')) {
     mean_shift <- rep(0:(clusters-1), length.out = n)
     data <- rnorm(n, sd = 0.3) + mean_shift
     data <- lapply(1:n, function(i){data[i]})
-    source('../vecutil.R')
+    library(vecapply)
     return(list(data=data, clusters=clusters, niter=niter))
 }
 
@@ -44,15 +44,15 @@ run <- function(data) {
         
         #complex vectorize. Just replace the original one's name
         V_dist.inner.func <- function(V_centers) {
-            (VV_pts - vecData(V_centers, V_pts))^2
+            (VV_pts - va_repVecData(V_centers, V_pts))^2
         }
         
         V_dist.inner.func(V_centers)
     }
     
-    V_pts <- list2vec(pts)
-    V_centers <- list2vec(centers)
-    VV_pts <- colVecData(V_pts, V_centers)
+    V_pts <- va_list2vec(pts)
+    V_centers <- va_list2vec(centers)
+    VV_pts <- va_colRepVecData(V_pts, V_centers)
     for(i in 1:niter) {
         #map each item into distance to 10 centers.
         V_dists <- V_dist.func(V_pts)

@@ -33,7 +33,7 @@ setup <- function(args=c('10000', '1000', '10')) {
     data <-list(train_set=list_train_set, 
             test_set=list_test_set,
             clusters=clusters)
-    source('../vecutil.R')
+    library(vecapply)
     return(data)
 }
 
@@ -52,21 +52,21 @@ run <- function(data) {
     V_NN.fun <- function(V_test) {
         #calculate the distance to all 
         dists.fun <- function(train_item) {
-            rowSums((vecData(train_item$val,V_test$val)  - V_test$val)^2)
+            rowSums((va_repVecData(train_item$val,V_test$val)  - V_test$val)^2)
         }
         
         V_dists <- lapply(list_train, dists.fun)
-        VV_dists <- list2vec(V_dists)
+        VV_dists <- va_list2vec(V_dists)
         #get the which min
         V_min.train <- apply(VV_dists, 2, which.min)
         #get the category
-        V_test$label <- ((list2vec(list_train))$label)[V_min.train]
+        V_test$label <- ((va_list2vec(list_train))$label)[V_min.train]
         V_test
     }
     #note moved here
-    vec_test<-list2vec(list_test)
+    vec_test<-va_list2vec(list_test)
     out_vec_test<- V_NN.fun(vec_test) #it has a new $label as vector
-    out_list_test <- vec2list(out_vec_test) #change back
+    out_list_test <- va_vec2list(out_vec_test) #change back
     
     #get the cl
     test_cl_vec <- sapply(out_list_test, function(test_item){test_item$label})

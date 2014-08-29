@@ -20,7 +20,7 @@ setup <- function(args=c('1000000', '10', '100')) {
     y<- colSums(x) + rnorm(n) + 1 # now the coefficient are all 1
     yx <- lapply(1:n, function(i){c(y[i],x[,i])})
     data <- list(yx=yx, nvar=nvar, niter=niter);
-    source('../vecutil.R')
+    library(vecapply)
     return(data)
 }
 
@@ -30,8 +30,8 @@ run <- function(data) {
     V_grad.func <- function(V_yx) {
         V_y <- V_yx[,1]
         V_x <- V_yx
-        V_x[,1] <- vecData(1, V_yx) #modify the 1st element
-        V_error <- (rowSums(V_x * vecData(theta, V_x)) - V_y)
+        V_x[,1] <- va_repVecData(1, V_yx) #modify the 1st element
+        V_error <- (rowSums(V_x * va_repVecData(theta, V_x)) - V_y)
         V_delta <- V_error * V_x
         return(V_delta)
     }
@@ -47,7 +47,7 @@ run <- function(data) {
     niter<-data$niter
     theta <- double(length(yx[[1]])) #initial guess as 0
     alpha <- 0.05/nvar # small step
-    V_yx <- list2vec(yx)
+    V_yx <- va_list2vec(yx)
     for(iter in 1:niter) {
         V_delta <- V_grad.func(V_yx)
         #cat('delta =', delta, '\n')
