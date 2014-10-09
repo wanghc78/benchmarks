@@ -37,12 +37,10 @@ setup <- function(args=c('10000', '1000', '10', '5')) {
             test_set=list_test_set,
             clusters=clusters,
             k=k)
-    library(vecapply)
     return(data)
 }
 
 run <- function(data) {
-    library(class) #use built-in knn
     list_train<-data$train_set
     train_n <- length(list_train)
     list_test<-data$test_set
@@ -53,34 +51,39 @@ run <- function(data) {
     
     #outer loop, map function for each test
     
-    kNN.fun <- function(test_item) {
+    V_kNN.fun <- function(test_item) {
         #calculate the distance to all 
-        V_dist.func<-function(V_train){
-            rowSums((V_train$val - va_repVecData(test_item$val, V_train$val))^2)
+        dists.fun <- function(train_item) {
+            rowSums((va_repVecData(train_item$val, test_item) - test_item$val)^2)
         }
         
-        V_dists <- V_dist.func(vec_train)
-        mink.indices <-order(V_dists)
+        dists_list <- lapply(list_train, dists.fun)
+        #change to dists_vec, and do the sorting
+        
+        mink.indices <- va_list2vec(va_vecApplyWrapper(dists_list, order))
         #then should pick the first k items, find t
-        train_items_indices <- mink.indices[1:k]
+        train_items_indices <- mink.indices[, 1:k]
         #now get the their label and vote
         
         train_items_category <- character(k)
+        train_items_category <- va_repVecData(train_items_category, test_item)
+        v_list_train <- va_list2vec(list_train)
         for(i in 1:k) {
-            train_items_category[i] <- list_train[[train_items_indices[i]]]$label
+          train_items_category[,i] <- v_list_train$label[train_items_indices[,i]]
         }
-        #get the category
-        test_item$label <- names(which.max(table(train_items_category)))
+        
+        #train_items_category <- sapply(list_train[train_items_indices], function(item){item$label})
+        test_item$label <- va_list2vec(va_vecApplyWrapper(train_items_category, function(train_items_category) {
+                names(which.max(table(train_items_category)))
+            }))
         test_item
     }
     
-    #note moved here
-    vec_train<-va_list2vec(list_train) #vec_train$val vec_train$label  
-    out_list_test <- lapply(list_test, kNN.fun)
+    V_out_list_test <- V_kNN.fun(va_list2vec(list_test))
     
     #get the cl
-    test_cl_vec <- sapply(out_list_test, function(test_item){test_item$label})
-    test_cl <- factor(test_cl_vec)
+    V_test_cl <- (function(test_item){test_item$label})(V_out_list_test)
+    test_cl <- factor(V_test_cl)
     print(summary(test_cl))
 }
 

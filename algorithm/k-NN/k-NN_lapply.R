@@ -61,24 +61,26 @@ run <- function(data) {
         dists_list <- lapply(list_train, dists.fun)
         #change to dists_vec, and do the sorting
         dists <- unlist(dists_list)
-        mink.dists<-sort(dists, partial=k)
-        #then should pick the first k items, find t
-        train_items_indices <- match(mink.dists[1:k], dists)
-        #now get the their label and vote
         
-        train_items_category <- sapply(list_train[train_items_indices], function(item){item$label})
-        votes <- table(train_items_category)
-        max.votes <- which.max(votes)
-        #get the category
-        test_item$label <- attr(max.votes, "names")
+        mink.indices <-order(dists)
+        #then should pick the first k items, find t
+        train_items_indices <- mink.indices[1:k]
+
+        train_items_category <- character(k)
+        for(i in 1:k) {
+          train_items_category[i] <- list_train[[train_items_indices[i]]]$label
+        }
+        
+        #now get the their label and vote
+        test_item$label <- names(which.max(table(train_items_category)))
         test_item
     }
     
     out_list_test <- lapply(list_test, kNN.fun)
     
     #get the cl
-    test_cl_vec <- sapply(out_list_test, function(test_item){test_item$label})
-    test_cl <- factor(test_cl_vec)
+    test_cl <- lapply(out_list_test, function(test_item){test_item$label})
+    test_cl <- factor(unlist(test_cl))
     print(summary(test_cl))
 }
 

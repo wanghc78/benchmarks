@@ -45,11 +45,13 @@ run <- function(data) {
     #V_yx <- t(simplify2array(yx))
     for(iter in 1:niter) {
         {
-          if(! exists(".va.yx", inherits = FALSE) || !identical(.vasrc.yx, yx) ) {
-            .va.yx = va_list2vec(yx)
-            .vasrc.yx = yx 
-          }
-          .va.delta <- V_grad.func(.va.yx)
+          .va.delta <- V_grad.func({
+                      if(! exists(".va.yx", inherits = FALSE) || !identical(.vasrc.yx, yx) ) {
+                         .va.yx <- va_list2vec(yx)
+                         .vasrc.yx <- yx 
+                      }
+                      .va.yx
+                    })
           delayedAssign("delta", va_vec2list(.va.delta))
         }
 
