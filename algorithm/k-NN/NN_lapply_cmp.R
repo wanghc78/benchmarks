@@ -7,7 +7,7 @@
 # Author: Haichuan Wang
 ###############################################################################
 library(vecapply)
-setup <- function(args=c('10000', '10000', '10', '5')) {
+setup <- function(args=c('10000', '10000', '10')) {
     train_n<-as.integer(args[1])
     if(is.na(train_n)){ train_n <- 10000L }
     
@@ -16,9 +16,6 @@ setup <- function(args=c('10000', '10000', '10', '5')) {
     
     clusters<-as.integer(args[3])
     if(is.na(clusters)){ clusters <- 10L }
-    
-    k<-as.integer(args[4])
-    if(is.na(k)){ k <- 5L }    
     
     #generate training
     mean_shift <- rep(0:(clusters-1), length.out = 3*train_n)
@@ -35,46 +32,37 @@ setup <- function(args=c('10000', '10000', '10', '5')) {
     
     data <-list(train_set=list_train_set, 
             test_set=list_test_set,
-            clusters=clusters,
-            k=k)
+            clusters=clusters)
     return(data)
 }
 
 run <- function(data) {
+
     list_train<-data$train_set
     train_n <- length(list_train)
     list_test<-data$test_set
     test_n <- length(list_test)
     clusters<- data$clusters
-    k <- data$k
-    cat('k-NN: k =', k,', Category =', clusters, ', Train =', train_n, ', Test =', test_n, '\n')
+    
+    cat('NN: Category =', clusters, ', Train =', train_n, ', Test =', test_n, '\n')
     
     #outer loop, map function for each test
     
-    kNN.fun <- function(test_item) {
+    NN.fun <- function(test_item) {
         #calculate the distance to all 
-        V_dist.func<-function(V_train){
-            rowSums((V_train$val - va_repVecData(test_item$val, V_train$val))^2)
+        dists.fun <- function(train_item) {
+            sum((train_item$val - test_item$val)^2)
         }
         
-        V_dists <- V_dist.func(vec_train)
-        mink.indices <-order(V_dists)
-        #then should pick the first k items, find t
-        train_items_indices <- mink.indices[1:k]
-        #now get the their label and vote
-        
-        train_items_category <- character(k)
-        for(i in 1:k) {
-            train_items_category[i] <- list_train[[train_items_indices[i]]]$label
-        }
+        dists <- lapply(list_train, dists.fun)
+        #get the which min
+        min.train <- which.min(dists)
         #get the category
-        test_item$label <- names(which.max(table(train_items_category)))
+        test_item$label <- (list_train[[min.train]])$label
         test_item
     }
     
-    #note moved here
-    vec_train<-va_list2vec(list_train) #vec_train$val vec_train$label  
-    out_list_test <- lapply(list_test, kNN.fun)
+    out_list_test <- lapply(list_test, NN.fun)
     
     #get the cl
     test_cl_vec <- sapply(out_list_test, function(test_item){test_item$label})
@@ -82,6 +70,7 @@ run <- function(data) {
     print(summary(test_cl))
 }
 
+run <- va_cmpfun(run)
 
 if (!exists('harness_argc')) {
     data <- setup(commandArgs(TRUE))

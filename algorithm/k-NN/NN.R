@@ -7,12 +7,12 @@
 # Author: Haichuan Wang
 ###############################################################################
 
-setup <- function(args=c('10000', '1000', '10')) {
+setup <- function(args=c('10000', '10000', '10')) {
     train_n<-as.integer(args[1])
     if(is.na(train_n)){ train_n <- 10000L }
     
     test_n<-as.integer(args[2])
-    if(is.na(test_n)){ test_n <- 1000L }   
+    if(is.na(test_n)){ test_n <- 10000L }   
     
     clusters<-as.integer(args[3])
     if(is.na(clusters)){ clusters <- 10L }

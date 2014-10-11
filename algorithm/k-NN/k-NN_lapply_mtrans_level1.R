@@ -6,13 +6,13 @@
 # 
 # Author: Haichuan Wang
 ###############################################################################
-
-setup <- function(args=c('10000', '1000', '10', '5')) {
+library(vecapply)
+setup <- function(args=c('10000', '10000', '10', '5')) {
     train_n<-as.integer(args[1])
     if(is.na(train_n)){ train_n <- 10000L }
     
     test_n<-as.integer(args[2])
-    if(is.na(test_n)){ test_n <- 1000L }   
+    if(is.na(test_n)){ test_n <- 10000L }   
     
     clusters<-as.integer(args[3])
     if(is.na(clusters)){ clusters <- 10L }
@@ -59,8 +59,8 @@ run <- function(data) {
         
         dists_list <- lapply(list_train, dists.fun)
         #change to dists_vec, and do the sorting
-        
-        mink.indices <- va_list2vec(va_vecApplyWrapper(dists_list, order))
+        dists <- simplify2array(dists_list)
+        mink.indices <- va_list2vec(va_vecApplyWrapper(dists, order))
         #then should pick the first k items, find t
         train_items_indices <- mink.indices[, 1:k]
         #now get the their label and vote

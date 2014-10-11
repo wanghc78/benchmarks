@@ -5,9 +5,9 @@
 # Author: Haichuan
 ###############################################################################
 
-setup <- function(args=c('1000000', '10', '10')) {
+setup <- function(args=c('100000', '10', '10')) {
     n<-as.integer(args[1])
-    if(is.na(n)){ n <- 1000000L }
+    if(is.na(n)){ n <- 100000L }
     
     clusters<-as.integer(args[2])
     if(is.na(clusters)){ clusters <- 10L }
@@ -16,35 +16,42 @@ setup <- function(args=c('1000000', '10', '10')) {
     if(is.na(niter)){ niter <- 10L }
     
     #the data, each is
-    mean_shift <- rep(0:(clusters-1), length.out = 3*n)
-    data <- matrix(rnorm(3*n, sd = 0.3) + mean_shift, ncol=3)
-    #now change data into list structure
-    list_data <- lapply(1:n, function(i) data[i,])
-    
-    return(list(data=list_data, clusters=clusters, niter=niter))
+    mean_shift <- rep(0:(clusters-1), length.out = n)
+    data <- rnorm(n, sd = 0.3) + mean_shift
+    data <- lapply(1:n, function(i){data[i]})
+    library(vecapply)
+    return(list(data=data, clusters=clusters, niter=niter))
 }
 
 run <- function(data) {
+
+    
     clusters <- data$clusters
     niter <- data$niter
-    list_data <- data$data
+    pts <- data$data
     
-    dist.func <- function(ptr){ 
+    size <- integer(clusters);
+    centers <- pts[1:clusters] 
+    V_dist.func <- function(V_pts){ #ptr is now vectors
+        
         dist.inner.func <- function(center){
-            sum((ptr-center)^2)
-        }
-        lapply(centers, dist.inner.func)
+                              (V_pts - va_repVecData(center, V_pts))^2
+                           }
+                           
+        #Org #lapply(centers, dist.inner.func)
+        #now still maintain the original one. The rule. Only the use of V_pts should be changed
+        lapply(V_centers, dist.inner.func)
     }
     
-    centers <- list_data[1:clusters] #pick 10 as default centers
-    size <- integer(clusters);
+    V_pts <- va_list2vec(pts)
+    V_centers <- va_list2vec(centers)
     for(i in 1:niter) {
         #map each item into distance to 10 centers.
-        dists <- lapply(list_data, dist.func)
-        ids <- lapply(dists, which.min)
+        V_dists <- V_dist.func(V_pts)
+        ids <- apply(simplify2array(V_dists), 1, which.min);
         #calculate the new centers through mean
         for(j in 1:clusters) {
-            cur_cluster <- list_data[ids==j]
+            cur_cluster <- pts[ids==j]
             size[j] <- length(cur_cluster)
             centers[[j]] <- Reduce('+', cur_cluster) / size[j]
         }
@@ -52,7 +59,7 @@ run <- function(data) {
     #calculate the distance to the 10 centers
     
     cat("Centers:\n")
-    print(centers);
+    print(V_centers);
     cat("Sizes:\n")
     print(size);
 }

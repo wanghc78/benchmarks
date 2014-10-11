@@ -4,7 +4,7 @@
 #   The argument is the input number of points, 100K by default
 # Author: Haichuan
 ###############################################################################
-
+library(vecapply)
 setup <- function(args=c('1000000', '10', '10')) {
     n<-as.integer(args[1])
     if(is.na(n)){ n <- 1000000L }
@@ -56,6 +56,8 @@ run <- function(data) {
     cat("Sizes:\n")
     print(size);
 }
+
+run <- va_cmpfun(run)
 
 if (!exists('harness_argc')) {
     data <- setup(commandArgs(TRUE))

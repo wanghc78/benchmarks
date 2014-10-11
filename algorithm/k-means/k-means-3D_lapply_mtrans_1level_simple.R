@@ -5,9 +5,9 @@
 # Author: Haichuan
 ###############################################################################
 
-setup <- function(args=c('1000000', '10', '10')) {
+setup <- function(args=c('100000', '10', '10')) {
     n<-as.integer(args[1])
-    if(is.na(n)){ n <- 1000000L }
+    if(is.na(n)){ n <- 100000L }
     
     clusters<-as.integer(args[2])
     if(is.na(clusters)){ clusters <- 10L }
@@ -20,31 +20,35 @@ setup <- function(args=c('1000000', '10', '10')) {
     data <- matrix(rnorm(3*n, sd = 0.3) + mean_shift, ncol=3)
     #now change data into list structure
     list_data <- lapply(1:n, function(i) data[i,])
-    
+    library(vecapply)
     return(list(data=list_data, clusters=clusters, niter=niter))
 }
 
 run <- function(data) {
     clusters <- data$clusters
     niter <- data$niter
-    list_data <- data$data
+    pts <- data$data
+    centers <- pts[1:clusters] 
     
-    dist.func <- function(ptr){ 
+    V_dist.func <- function(V_pts){ 
+        #org inner only change V_pts related one
         dist.inner.func <- function(center){
-            sum((ptr-center)^2)
+            rowSums((V_pts - va_repVecData(center, V_pts))^2)
         }
-        lapply(centers, dist.inner.func)
+        #here lapply will be changed to apply
+        apply(V_centers, 1, dist.inner.func)
     }
     
-    centers <- list_data[1:clusters] #pick 10 as default centers
+    V_pts <- va_list2vec(pts)
+    V_centers <- va_list2vec(centers) #pick 10 as default centers
     size <- integer(clusters);
     for(i in 1:niter) {
         #map each item into distance to 10 centers.
-        dists <- lapply(list_data, dist.func)
-        ids <- lapply(dists, which.min)
+        V_dists <- V_dist.func(V_pts)
+        ids <- lapply(va_vec2list(V_dists), which.min);
         #calculate the new centers through mean
         for(j in 1:clusters) {
-            cur_cluster <- list_data[ids==j]
+            cur_cluster <- pts[ids==j]
             size[j] <- length(cur_cluster)
             centers[[j]] <- Reduce('+', cur_cluster) / size[j]
         }

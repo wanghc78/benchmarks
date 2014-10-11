@@ -5,9 +5,9 @@
 # Author: Haichuan Wang
 ###############################################################################
 
-setup <- function(args=c('10000000')) {
+setup <- function(args=c('20000000')) {
     n<-as.integer(args[1])
-    if(is.na(n)){ n <- 10000000L }
+    if(is.na(n)){ n <- 20000000L }
         
     rdata <- runif(n*2) 
     list_data <- lapply(1:n, function(i){rdata[(2*i-1):(2*i)]})

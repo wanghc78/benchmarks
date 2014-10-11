@@ -5,6 +5,7 @@
 # Author: Haichuan Wang
 ###############################################################################
 
+library(vecapply)
 setup <- function(args=c('20000000')) {
     n<-as.integer(args[1])
     if(is.na(n)){ n <- 20000000L }
@@ -33,6 +34,8 @@ run <- function(list_data) {
     
     cat('Pi = ', mcPi, '\n');
 }
+
+run <- va_cmpfun(run)
 
 if (!exists('harness_argc')) {
     data <- setup(commandArgs(TRUE))
