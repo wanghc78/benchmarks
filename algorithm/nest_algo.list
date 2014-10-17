@@ -1,0 +1,9 @@
+# all benchmarks with vec cmp version
+k-means/k-means-1D_lapply_mtrans_level2.R
+k-means/k-means-1D_lapply_mtrans_opt.R
+k-means/k-means-3D_lapply_mtrans_level2.R
+k-means/k-means-3D_lapply_mtrans_opt.R
+k-NN/NN_lapply_mtrans_level2.R
+k-NN/NN_lapply_mtrans.R
+k-NN/k-NN_lapply_mtrans_level2.R
+k-NN/k-NN_lapply_mtrans.R

@@ -1,0 +1,15 @@
+# all benchmarks with vec cmp version
+#Pi/Pi_lapply.R
+#Pi/Pi_lapply_cmp.R
+#LR/lr_lms_lapply.R
+LR/lr_lms_lapply_cmp.R
+LR/lr_nvars_lms_lapply.R
+LR/lr_nvars_lms_lapply_cmp.R
+k-means/k-means-1D_lapply.R
+k-means/k-means-1D_lapply_cmp.R
+k-means/k-means-3D_lapply.R
+k-means/k-means-3D_lapply_cmp.R
+k-NN/NN_lapply.R
+k-NN/NN_lapply_cmp.R
+k-NN/k-NN_lapply.R
+k-NN/k-NN_lapply_cmp.R

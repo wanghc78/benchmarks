@@ -4,7 +4,7 @@
 #   The argument is the input number of points, 100K by default
 # Author: Haichuan
 ###############################################################################
-
+library(vecapply)
 setup <- function(args=c('1000000', '10', '10')) {
     n<-as.integer(args[1])
     if(is.na(n)){ n <- 1000000L }
@@ -16,36 +16,33 @@ setup <- function(args=c('1000000', '10', '10')) {
     if(is.na(niter)){ niter <- 10L }
     
     #the data, each is
-    mean_shift <- rep(0:(clusters-1), length.out = 3*n)
-    data <- matrix(rnorm(3*n, sd = 0.3) + mean_shift, ncol=3)
-    #now change data into list structure
-    list_data <- lapply(1:n, function(i) data[i,])
-    library(vecapply)
-    return(list(data=list_data, clusters=clusters, niter=niter))
+    mean_shift <- rep(0:(clusters-1), length.out = n)
+    data <- rnorm(n, sd = 0.3) + mean_shift
+    data <- lapply(1:n, function(i){data[i]})
+    
+    return(list(data=data, clusters=clusters, niter=niter))
 }
 
 run <- function(data) {
     clusters <- data$clusters
     niter <- data$niter
     pts <- data$data
-    centers <- pts[1:clusters] 
     
-    V_dist.func <- function(V_pts){ 
-        #org inner only change V_pts related one
-        dist.inner.func <- function(center){
-            rowSums((V_pts - va_repVecData(center, V_pts))^2)
-        }
-        #here lapply will be changed to apply
-        apply(V_centers, 1, dist.inner.func)
+    centers <- pts[1:clusters] #pick 10 as default centers
+    size <- integer(clusters);
+    
+    dist.func <- function(ptr){
+        V_dist.inner.func <- function(V_centers){
+                              (va_repVecData(ptr, V_centers) -V_centers)^2
+                           }
+        V_dist.inner.func(V_centers)
     }
     
-    V_pts <- va_list2vec(pts)
-    V_centers <- va_list2vec(centers) #pick 10 as default centers
-    size <- integer(clusters);
     for(i in 1:niter) {
         #map each item into distance to 10 centers.
-        V_dists <- V_dist.func(V_pts)
-        ids <- lapply(va_vec2list(V_dists), which.min);
+        V_centers <- va_list2vec(centers)
+        dists <- lapply(pts, dist.func)
+        ids <- lapply(dists, which.min);
         #calculate the new centers through mean
         for(j in 1:clusters) {
             cur_cluster <- pts[ids==j]

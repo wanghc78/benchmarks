@@ -5,9 +5,9 @@
 # Author: Haichuan
 ###############################################################################
 
-setup <- function(args=c('100000', '10', '10')) {
+setup <- function(args=c('1000000', '10', '10')) {
     n<-as.integer(args[1])
-    if(is.na(n)){ n <- 100000L }
+    if(is.na(n)){ n <- 1000000L }
     
     clusters<-as.integer(args[2])
     if(is.na(clusters)){ clusters <- 10L }

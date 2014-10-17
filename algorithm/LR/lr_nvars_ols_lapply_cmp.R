@@ -5,15 +5,19 @@
 #   The argument is the input size of x/y, 1M by default
 # Author: Haichuan Wang
 ###############################################################################
-
-setup <- function(args=c('1000000')) {
+library(vecapply)
+setup <- function(args=c('1000000', '10')) {
     n<-as.integer(args[1])
     if(is.na(n)){ n <- 1000000L }
     
-    x<- runif(n, 0, 10) 
-    y<- x + rnorm(n) + 1;
-    yx <- lapply(1:n, function(i){c(y[i],x[i])})
-    data <- list(yx=yx);
+    nvar <-as.integer(args[2])
+    if(is.na(nvar)){ nvar <- 10L }
+    
+    
+    x<- matrix(runif(n*nvar, 0, 10), nrow=nvar, ncol=n) 
+    y<- colSums(x) + rnorm(n) + 1 # now the coefficient are all 1
+    yx <- lapply(1:n, function(i){c(y[i],x[,i])})
+    data <- list(yx=yx, nvar=nvar);
     
     return(data)
 }
@@ -22,13 +26,15 @@ run <- function(data) {
     
     #X includes "1" column, Y column vec    
     A.func <- function(yx) {
-        x <- c(1, yx[2])
+        x <- yx
+        x[1] <- 1 #modify the 1st element set to 1
         tcrossprod(x)
     }
     
     b.func <- function(yx) {
         y <- yx[1]
-        x <- c(1, yx[2])
+        x <- yx
+        x[1] <-1
         x * y
     }
     
@@ -40,6 +46,8 @@ run <- function(data) {
     theta <- solve(A, b)
     print(theta)
 }
+
+run<-va_cmpfun(run)
 
 if (!exists('harness_argc')) {
     data <- setup(commandArgs(TRUE))

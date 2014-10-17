@@ -4,10 +4,10 @@
 #   The argument is the input number of points, 100K by default
 # Author: Haichuan
 ###############################################################################
-
-setup <- function(args=c('100000', '10', '10')) {
+library(vecapply)
+setup <- function(args=c('1000000', '10', '10')) {
     n<-as.integer(args[1])
-    if(is.na(n)){ n <- 100000L }
+    if(is.na(n)){ n <- 1000000L }
     
     clusters<-as.integer(args[2])
     if(is.na(clusters)){ clusters <- 10L }
@@ -20,7 +20,7 @@ setup <- function(args=c('100000', '10', '10')) {
     data <- matrix(rnorm(3*n, sd = 0.3) + mean_shift, ncol=3)
     #now change data into list structure
     list_data <- lapply(1:n, function(i) data[i,])
-    library(vecapply)
+    
     return(list(data=list_data, clusters=clusters, niter=niter))
 }
 

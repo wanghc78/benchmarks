@@ -5,7 +5,7 @@
 #   The argument is the input size of x/y, 1M by default
 # Author: Haichuan Wang
 ###############################################################################
-
+library(vecapply)
 setup <- function(args=c('1000000')) {
     n<-as.integer(args[1])
     if(is.na(n)){ n <- 1000000L }
@@ -40,6 +40,8 @@ run <- function(data) {
     theta <- solve(A, b)
     print(theta)
 }
+
+run<-va_cmpfun(run)
 
 if (!exists('harness_argc')) {
     data <- setup(commandArgs(TRUE))

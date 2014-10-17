@@ -1,0 +1,14 @@
+#lr_lms_lapply.R  1000000 100
+#lr_lms_lapply_cmp.R 1000000 100
+lr_lms_lapply.R  500000 200
+lr_lms_lapply_cmp.R 500000 200
+lr_lms_lapply.R  200000 500
+lr_lms_lapply_cmp.R 200000 500
+lr_lms_lapply.R  100000 1000
+lr_lms_lapply_cmp.R 100000 1000
+lr_lms_lapply.R  50000 2000
+lr_lms_lapply_cmp.R 50000 2000
+lr_lms_lapply.R  20000 5000
+lr_lms_lapply_cmp.R 20000 5000
+lr_lms_lapply.R  10000 10000
+lr_lms_lapply_cmp.R 10000 10000

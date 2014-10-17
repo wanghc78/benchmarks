@@ -33,7 +33,7 @@ setup <- function(args=c('10000', '10000', '10')) {
     data <-list(train_set=list_train_set, 
             test_set=list_test_set,
             clusters=clusters)
-    library(vecapply)
+    
     return(data)
 }
 

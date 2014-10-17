@@ -1,0 +1,6 @@
+pca_lapply.R 1000000
+pca_lapply_cmp.R 1000000
+pca_lapply.R 1000000 2
+pca_lapply_cmp.R 1000000 2
+pca_lapply.R 1000000 5
+pca_lapply_cmp.R 1000000 5
