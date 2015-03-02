@@ -4,19 +4,24 @@
 #   The argument is the input number of points, 100K by default
 # Author: Haichuan
 ###############################################################################
+
+app.name <- "k-means_cmp"
+
 library(vecapply)
-setup <- function(args=c('1000000', '10', '10', '10')) {
+setup <- function(args=c('1000000', '3', '10', '15')) {
     n<-as.integer(args[1])
     if(is.na(n)){ n <- 1000000L }
     
     dims<-as.integer(args[2])
-    if(is.na(dims)){ dims <- 10L }
+    if(is.na(dims)){ dims <- 3L }
     
     clusters<-as.integer(args[3])
     if(is.na(clusters)){ clusters <- 10L }
     
     niter<-as.integer(args[4])
-    if(is.na(niter)){ niter <- 10L }
+    if(is.na(niter)){ niter <- 15L }
+    
+    cat('[INFO][', app.name, '] n=', n, ', dims=', dims, ', clusters=', clusters, ', niter=', niter, '\n', sep='')
     
     #the data, each is
     mean_shift <- rep(0:(clusters-1), length.out = dims*n)
@@ -40,8 +45,9 @@ run <- function(data) {
     }
     
     centers <- list_data[1:clusters] #pick 10 as default centers
-    size <- integer(clusters);
-    for(i in 1:niter) {
+    size <- integer(clusters)
+    ptm <- proc.time() #previous iteration's time
+    for(iter in 1:niter) {
         #map each item into distance to 10 centers.
         dists <- lapply(list_data, dist.func)
         ids <- lapply(dists, which.min)
@@ -51,6 +57,9 @@ run <- function(data) {
             size[j] <- length(cur_cluster)
             centers[[j]] <- Reduce('+', cur_cluster) / size[j]
         }
+        ctm <- proc.time()
+        cat("[INFO]Iter", iter, "Time =", (ctm - ptm)[[3]], '\n')
+        ptm <- ctm
     }
     #calculate the distance to the 10 centers
     

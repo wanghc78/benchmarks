@@ -6,6 +6,8 @@
 # 
 # Author: Haichuan Wang
 ###############################################################################
+app.name <- "kNN_cmp"
+
 library(vecapply)
 setup <- function(args=c('10000', '10000', '10', '5')) {
     train_n<-as.integer(args[1])
@@ -19,6 +21,8 @@ setup <- function(args=c('10000', '10000', '10', '5')) {
     
     k<-as.integer(args[4])
     if(is.na(k)){ k <- 5L }    
+    
+    cat('[INFO][', app.name, '] train_n=', train_n, ', test_n=', test_n, ', clusters=', clusters, ', k=', k, '\n', sep='')
     
     #generate training
     mean_shift <- rep(0:(clusters-1), length.out = 3*train_n)
@@ -76,11 +80,13 @@ run <- function(data) {
         test_item
     }
     
+    ptm <- proc.time() #previous iteration's time
     out_list_test <- lapply(list_test, kNN.fun)
     
     #get the cl
     test_cl <- lapply(out_list_test, function(test_item){test_item$label})
     test_cl <- factor(unlist(test_cl))
+    cat("[INFO]Time =", (proc.time()-ptm)[[3]], '\n')
     print(summary(test_cl))
 }
 

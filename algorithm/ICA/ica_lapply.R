@@ -5,6 +5,8 @@
 # The code is based on FastICA R package http://cran.r-project.org/web/packages/fastICA/
 # Un-mixing n mixed independent uniforms
 ###############################################################################
+app.name <- "ICA"
+
 
 setup <- function(args=c('1000000', '2', '25')) {
     n<-as.integer(args[1])
@@ -16,6 +18,8 @@ setup <- function(args=c('1000000', '2', '25')) {
     
     niter<-as.integer(args[3])
     if(is.na(niter)){ niter <- 25L }
+    
+    cat('[INFO][', app.name, '] n=', n, ', nvar=', nvar, ', niter=', niter, '\n', sep='')
     
     #generate pre-centered data. Note the data shape is n x nvar
     S <- matrix(runif(n*nvar), nrow=n, ncol=nvar)
@@ -61,8 +65,9 @@ run <- function(data) {
         gwx <- tanh(alpha * wx)
         alpha * (1 - gwx^2)
     }
+    
+    ptm <- proc.time() #previous iteration's time
     for(iter in 1:niter) {
-        cat('Iter =', iter, '\n')
         GWX <- lapply(X1, gwx.fun)
         v1 <- Reduce('+', GWX) / n
         G.WX <- lapply(X1, g.wx.fun)
@@ -71,6 +76,9 @@ run <- function(data) {
         sW1 <- La.svd(W1)
         W1 <- sW1$u %*% diag(1/sW1$d) %*% t(sW1$u) %*% W1
         W <- W1
+        ctm <- proc.time()
+        cat("[INFO]Iter", iter, "Time =", (ctm - ptm)[[3]], '\n')
+        ptm <- ctm
     }
     #final turn back
     w <- W %*% K
