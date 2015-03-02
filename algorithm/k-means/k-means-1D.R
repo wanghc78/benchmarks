@@ -1,34 +1,19 @@
-# k-means by built-in kmeans
+# k-means-1D - R internal k-means based implementation
 # 
-# Input: 1D points, k-means to 10 clusters, with iteration 10.
-#   The argument is the input number of points, 100k by default
-# Author: Haichuan
+# Author: Haichuan Wang
+#
+# k-means-1D using R built-in k-means implementation
 ###############################################################################
+app.name <- "k-means-1D"
+source('setup_k-means-1D.R')
 
-#Three arguments, number of points, clusters, and iterations
-setup <- function(args=c('1000000', '10', '10')) {
-    n<-as.integer(args[1])
-    if(is.na(n)){ n <- 1000000L }
+run <- function(dataset) {
+    ncluster <- dataset$ncluster
+    niter <- dataset$niter
+    Points <- dataset$Points
+    vPoints <- simplify2array(Points)
     
-    clusters<-as.integer(args[2])
-    if(is.na(clusters)){ clusters <- 10L }
-    
-    niter<-as.integer(args[3])
-    if(is.na(niter)){ niter <- 10L }
-    
-    #the data, each is
-    mean_shift <- rep(0:(clusters-1), length.out = n)
-    data <- rnorm(n, sd = 0.3) + mean_shift
-    
-    return(list(data=data, clusters=clusters, niter=niter))
-}
-
-run <- function(data) {
-    clusters <- data$clusters
-    niter <- data$niter
-    pts <- data$data
-    
-    res<-kmeans(pts, clusters, iter.max=niter);
+    res<-kmeans(vPoints, ncluster, iter.max=niter);
     cat("Centers:\n")
     print(res$centers);
     cat("Sizes:\n")

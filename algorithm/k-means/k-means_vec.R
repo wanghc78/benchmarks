@@ -1,38 +1,39 @@
-# k-means-1D - lapply based implementation with vecapply
+# k-means - vector programming based implementation
 # 
 # Author: Haichuan Wang
 #
-# k-means-1D using lapply based iterative algorithm with vecapply transform
+# k-means using vector programming
 ###############################################################################
-app.name <- "k-means-1D_lapply_cmp"
-source('setup_k-means-1D.R')
+
+app.name <- "k-means_vec"
+source('setup_k-means.R')
 library(vecapply)
 
 run <- function(dataset) {
     ncluster <- dataset$ncluster
     niter <- dataset$niter
     Points <- dataset$Points
+    vPoints <- t(simplify2array(Points)) # n * ndim matrix
     
-    centers <- Points[1:ncluster] #pick 10 as default centers
+    centers <- vPoints[1:ncluster, ] #pick 10 as default centers
     size <- integer(ncluster);
-    
-    dist.func <- function(ptr){
-        dist.inner.func <- function(center){
-            (ptr-center)^2
-        }
-        lapply(centers, dist.inner.func)
-    }
-    
+    n <- nrow(vPoints)
+    dists <- matrix(0, nrow=n, ncol=ncluster) #pre-allocate memory
     ptm <- proc.time() #previous iteration's time
     for(iter in 1:niter) {
+        #need calculate each points' distance to all centers
+        #try to use vec as much as possible
+        for(j in 1:ncluster) {
+            center_expand <- matrix(rep(centers[j,], each=n), n, 3)
+            dists[,j] = rowSums((vPoints - center_expand)^2)
+        }
         #map each item into distance to 10 centers.
-        dists <- lapply(Points, dist.func)
-        ids <- lapply(dists, which.min);
+        ids <- apply(dists, 1, which.min)
         #calculate the new centers through mean
         for(j in 1:ncluster) {
-            cur_cluster <- Points[ids==j]
-            size[j] <- length(cur_cluster)
-            centers[[j]] <- Reduce('+', cur_cluster) / size[j]
+            cur_cluster <- vPoints[ids==j, ]
+            size[j] <- nrow(cur_cluster)
+            centers[j,] <- colMeans(cur_cluster)
         }
         ctm <- proc.time()
         cat("[INFO]Iter", iter, "Time =", (ctm - ptm)[[3]], '\n')
@@ -45,8 +46,6 @@ run <- function(dataset) {
     cat("Sizes:\n")
     print(size);
 }
-
-run <- va_cmpfun(run)
 
 if (!exists('harness_argc')) {
     data <- setup(commandArgs(TRUE))

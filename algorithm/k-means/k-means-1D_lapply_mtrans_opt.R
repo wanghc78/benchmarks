@@ -1,42 +1,25 @@
-# k-means by built-in kmeans
+# k-means-1D - lapply based implementation with manually optimized vecapply
 # 
-# Input: 3-dim points, k-means to 10 clusters, with iteration 10.
-#   The argument is the input number of points, 100K by default
-# Author: Haichuan
+# Author: Haichuan Wang
+#
+# k-means-1D using lapply based iterative algorithm with manually optimized vecapply transform
 ###############################################################################
+app.name <- "k-means-1D_lapply_mtrans_opt"
+source('setup_k-means-1D.R')
 library(vecapply)
-setup <- function(args=c('1000000', '10', '10')) {
-    n<-as.integer(args[1])
-    if(is.na(n)){ n <- 1000000L }
-    
-    clusters<-as.integer(args[2])
-    if(is.na(clusters)){ clusters <- 10L }
-    
-    niter<-as.integer(args[3])
-    if(is.na(niter)){ niter <- 10L }
-    
-    #the data, each is
-    mean_shift <- rep(0:(clusters-1), length.out = n)
-    data <- rnorm(n, sd = 0.3) + mean_shift
-    data <- lapply(1:n, function(i){data[i]})
-    
-    return(list(data=data, clusters=clusters, niter=niter))
-}
 
-run <- function(data) {
-
+run <- function(dataset) {
+    ncluster <- dataset$ncluster
+    niter <- dataset$niter
+    Points <- dataset$Points
     
-    clusters <- data$clusters
-    niter <- data$niter
-    pts <- data$data
-    
-    size <- integer(clusters);
-    centers <- pts[1:clusters] 
+    size <- integer(ncluster);
+    centers <- Points[1:ncluster] 
     V_dist.func <- function(V_ptr){
         
         # inner fun, only changes little.
 #        dist.inner.func <- function(center){
-#            (V_pts - vecData(center, V_pts))^2
+#            (V_Points - vecData(center, V_Points))^2
 #        }
         #now need vec above one
         #simple vec
@@ -44,25 +27,29 @@ run <- function(data) {
         
         #complex vectorize. Just replace the original one's name
         V_dist.inner.func <- function(V_centers) {
-            (VV_pts - va_repVecData(V_centers, V_pts))^2
+            (VV_Points - va_repVecData(V_centers, V_Points))^2
         }
         
         V_dist.inner.func(V_centers)
     }
     
-    V_pts <- va_list2vec(pts)
+    V_Points <- va_list2vec(Points)
     V_centers <- va_list2vec(centers)
-    VV_pts <- va_colRepVecData(V_pts, V_centers)
-    for(i in 1:niter) {
+    VV_Points <- va_colRepVecData(V_Points, V_centers)
+    ptm <- proc.time() #previous iteration's time
+    for(iter in 1:niter) {
         #map each item into distance to 10 centers.
-        V_dists <- V_dist.func(V_pts)
+        V_dists <- V_dist.func(V_Points)
         ids <- apply(V_dists, 1, which.min)
         #calculate the new centers through mean
-        for(j in 1:clusters) {
-            V_cur_cluster <- V_pts[ids==j]
+        for(j in 1:ncluster) {
+            V_cur_cluster <- V_Points[ids==j]
             size[j] <- length(V_cur_cluster)
             V_centers[j] <- sum(V_cur_cluster) / size[j]
         }
+        ctm <- proc.time()
+        cat("[INFO]Iter", iter, "Time =", (ctm - ptm)[[3]], '\n')
+        ptm <- ctm
     }
     #calculate the distance to the 10 centers
     

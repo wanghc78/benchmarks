@@ -1,35 +1,20 @@
-# k-means by built-in kmeans
+# k-means-1D - lapply based implementation with manually vecapply (level2)
 # 
-# Input: 3-dim points, k-means to 10 clusters, with iteration 10.
-#   The argument is the input number of points, 100K by default
-# Author: Haichuan
+# Author: Haichuan Wang
+#
+# k-means-1D using lapply based iterative algorithm with level2 manually vecapply transform
 ###############################################################################
+app.name <- "k-means-1D_lapply_mtran_level2"
+source('setup_k-means-1D.R')
 library(vecapply)
-setup <- function(args=c('1000000', '10', '10')) {
-    n<-as.integer(args[1])
-    if(is.na(n)){ n <- 1000000L }
-    
-    clusters<-as.integer(args[2])
-    if(is.na(clusters)){ clusters <- 10L }
-    
-    niter<-as.integer(args[3])
-    if(is.na(niter)){ niter <- 10L }
-    
-    #the data, each is
-    mean_shift <- rep(0:(clusters-1), length.out = n)
-    data <- rnorm(n, sd = 0.3) + mean_shift
-    data <- lapply(1:n, function(i){data[i]})
-    
-    return(list(data=data, clusters=clusters, niter=niter))
-}
 
-run <- function(data) {
-    clusters <- data$clusters
-    niter <- data$niter
-    pts <- data$data
+run <- function(dataset) {
+    ncluster <- dataset$ncluster
+    niter <- dataset$niter
+    Points <- dataset$Points
     
-    centers <- pts[1:clusters] #pick 10 as default centers
-    size <- integer(clusters);
+    centers <- Points[1:ncluster] #pick 10 as default centers
+    size <- integer(ncluster);
     
     dist.func <- function(ptr){
         V_dist.inner.func <- function(V_centers){
@@ -38,17 +23,21 @@ run <- function(data) {
         V_dist.inner.func(V_centers)
     }
     
-    for(i in 1:niter) {
+    ptm <- proc.time() #previous iteration's time
+    for(iter in 1:niter) {
         #map each item into distance to 10 centers.
         V_centers <- va_list2vec(centers)
-        dists <- lapply(pts, dist.func)
+        dists <- lapply(Points, dist.func)
         ids <- lapply(dists, which.min);
         #calculate the new centers through mean
-        for(j in 1:clusters) {
-            cur_cluster <- pts[ids==j]
+        for(j in 1:ncluster) {
+            cur_cluster <- Points[ids==j]
             size[j] <- length(cur_cluster)
             centers[[j]] <- Reduce('+', cur_cluster) / size[j]
         }
+        ctm <- proc.time()
+        cat("[INFO]Iter", iter, "Time =", (ctm - ptm)[[3]], '\n')
+        ptm <- ctm
     }
     #calculate the distance to the 10 centers
     

@@ -1,33 +1,36 @@
-# k-means-1D - lapply based implementation with vecapply
+# k-means - lapply based implementation with manually vecapply (outer level simple)
 # 
 # Author: Haichuan Wang
 #
-# k-means-1D using lapply based iterative algorithm with vecapply transform
+# k-means using lapply based iterative algorithm with manually vec apply trans
 ###############################################################################
-app.name <- "k-means-1D_lapply_cmp"
-source('setup_k-means-1D.R')
+app.name <- "k-means_lapply_level1_simple"
+source('setup_k-means.R')
 library(vecapply)
 
 run <- function(dataset) {
     ncluster <- dataset$ncluster
     niter <- dataset$niter
     Points <- dataset$Points
+    centers <- Points[1:ncluster] 
     
-    centers <- Points[1:ncluster] #pick 10 as default centers
-    size <- integer(ncluster);
-    
-    dist.func <- function(ptr){
+    V_dist.func <- function(V_Points){ 
+        #org inner only change V_Points related one
         dist.inner.func <- function(center){
-            (ptr-center)^2
+            rowSums((V_Points - va_repVecData(center, V_Points))^2)
         }
-        lapply(centers, dist.inner.func)
+        #here lapply will be changed to apply
+        apply(V_centers, 1, dist.inner.func)
     }
     
+    V_Points <- va_list2vec(Points)
+    V_centers <- va_list2vec(centers) #pick 10 as default centers
+    size <- integer(ncluster)
     ptm <- proc.time() #previous iteration's time
     for(iter in 1:niter) {
         #map each item into distance to 10 centers.
-        dists <- lapply(Points, dist.func)
-        ids <- lapply(dists, which.min);
+        V_dists <- V_dist.func(V_Points)
+        ids <- lapply(va_vec2list(V_dists), which.min);
         #calculate the new centers through mean
         for(j in 1:ncluster) {
             cur_cluster <- Points[ids==j]
@@ -45,8 +48,6 @@ run <- function(dataset) {
     cat("Sizes:\n")
     print(size);
 }
-
-run <- va_cmpfun(run)
 
 if (!exists('harness_argc')) {
     data <- setup(commandArgs(TRUE))
