@@ -1,27 +1,16 @@
-# lr by built-in lm
+# LinearRegression-1var - LMS(least mean square) vector programming based solution
 # 
-# Suppose y = ax + b
-# Input: y vectors, x vectors
-#   The argument is the input size of x/y, 1M by default
 # Author: Haichuan Wang
-# Referene: http://rstudio-pubs-static.s3.amazonaws.com/6980_aa7cd54928b24986af5d5342668d9a01.html
 ###############################################################################
+app.name <- 'LR-1var_lms_vec'
+source('setup_LR-1var.R')
 
-setup <- function(args=c('1000000', '100')) {
-    n<-as.integer(args[1])
-    if(is.na(n)){ n <- 1000000L }
-    
-    niter<-as.integer(args[2])
-    if(is.na(niter)){ niter <- 100L }
-    
-    x<- runif(n, 0, 10) 
-    y<- x + rnorm(n) + 1;
-    data <- list(x=x, y=y, niter=niter);
-    return(data)
-}
-
-run <- function(data) {
-
+run <- function(dataset) {
+    YX <- dataset$YX
+    niter <- dataset$niter
+    vYX <- t(simplify2array(YX))
+    X <- cbind(1, matrix(vYX[,2]))
+    Y <- vYX[,1]
     
     #X includes "1" column, Y column vec
     grad.func <- function(X, y) {
@@ -37,20 +26,22 @@ run <- function(data) {
         sum((X %*% theta - y)^2)/(2 * length(y))
     }
     
-    X <- cbind(1, matrix(data$x))
-    y <- data$y
-    niter <- data$niter
+
     theta <- double(ncol(X)) #initial guess
     alpha <- 0.05 # small step
 
+    ptm <- proc.time() #previous iteration's time
     for(iter in 1:niter) {
-        delta <- grad.func(X, y)
+        delta <- grad.func(X, Y)
         #cat('delta =', delta, '\n')
         theta <- theta - alpha * delta
+        ctm <- proc.time()
+        cat("[INFO]Iter", iter, "Time =", (ctm - ptm)[[3]], '\n')
+        ptm <- ctm
         cat('theta =', theta, '\n')
         #print(cost(X,y, theta))
     }
-    print(theta)
+    cat('Final theta =', theta, '\n')
 }
 
 if (!exists('harness_argc')) {

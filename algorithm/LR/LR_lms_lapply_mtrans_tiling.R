@@ -1,34 +1,26 @@
-# lr by built-in lm
+# LinearRegression - LMS(least mean square) lapply based solution with manual vecapply and tiling
 # 
-# Suppose y = ax + b
-# Input: y vectors, x vectors
-#   The argument is the input size of x/y, 1M by default
 # Author: Haichuan Wang
 ###############################################################################
+app.name <- 'LR_lms_lapply_mtrans_tiling'
+source('setup_LR.R')
 library(vecapply)
-setup <- function(args=c('1000000', '10', '100', '1000')) {
-    n<-as.integer(args[1])
-    if(is.na(n)){ n <- 1000000L }
-    
-    nvar <-as.integer(args[2])
-    if(is.na(nvar)){ nvar <- 10L }
-    
-    niter<-as.integer(args[3])
-    if(is.na(niter)){ niter <- 100L }
+
+oldsetup <- setup
+setup <- function(args=c('1000000', '10', '50', '1000')) {
+    dataset <- oldsetup(args)
     
     tile_sz<-as.integer(args[4])
     if(is.na(tile_sz)){ tile_sz <- 1000L }
-    
-    
-    x<- matrix(runif(n*nvar, 0, 10), nrow=nvar, ncol=n) 
-    y<- colSums(x) + rnorm(n) + 1 # now the coefficient are all 1
-    yx <- lapply(1:n, function(i){c(y[i],x[,i])})
-    data <- list(yx=yx, nvar=nvar, niter=niter, tile_sz = tile_sz);
-
-    return(data)
+    dataset$tile_sz <- tile_sz
+    cat('[INFO][', app.name, '] tile_sz=', tile_sz, '\n', sep='')
+    dataset
 }
 
-run <- function(data) {
+run <- function(dataset) {
+    YX <- dataset$YX
+    niter <- dataset$niter
+    tile_sz = data$tile_sz
     
     #X includes "1" column, Y column vec
     V_grad.func <- function(V_yx) {
@@ -46,34 +38,37 @@ run <- function(data) {
         sum((X %*% theta - y)^2)/(2 * length(y))
     }
     
-    yx <- data$yx
-    nvar <- data$nvar
-    niter<-data$niter
+
     tile_sz = data$tile_sz
-    tiles <- length(yx) / tile_sz # right now it should be simple
-    V_yx <- list()
+    tiles <- length(YX) / tile_sz # right now it should be simple
+    V_YX <- list()
     #construct tiles
     for(i in 1: tiles) {
         start <- (i-1)*tile_sz+1
         end <- start + tile_sz - 1;
-        V_yx[[i]] <-va_list2vec(yx[start:end])
+        V_YX[[i]] <-va_list2vec(YX[start:end])
     }
     
     
-    theta <- double(length(yx[[1]])) #initial guess as 0
-    alpha <- 0.05/nvar # small step
+    theta <- double(length(YX[[1]])) #initial guess as 0
+    alpha <- 0.05/ length(YX) / length(theta) # small step
+    
     new_theta <- theta
+    ptm <- proc.time() #previous iteration's time
     for(iter in 1:niter) {
         for(i in 1:tiles) {
-            V_delta <- V_grad.func(V_yx[[i]])
+            V_delta <- V_grad.func(V_YX[[i]])
             #cat('delta =', delta, '\n')
-            new_theta <- new_theta - alpha * colSums(V_delta) / length(yx)
+            new_theta <- new_theta - alpha * colSums(V_delta)
         }
         theta <- new_theta
+        ctm <- proc.time()
+        cat("[INFO]Iter", iter, "Time =", (ctm - ptm)[[3]], '\n')
+        ptm <- ctm
         cat('theta =', theta, '\n')
         #print(cost(X,y, theta))
     }
-    print(theta)
+    cat('Final theta =', theta, '\n')
 }
 
 if (!exists('harness_argc')) {
