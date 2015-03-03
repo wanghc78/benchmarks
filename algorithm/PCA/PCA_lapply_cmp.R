@@ -1,25 +1,13 @@
-# pca analysis
+# PCA analysis - Direct method with lapply and vecapply
 # 
 # Author: Haichuan Wang
 ###############################################################################
+app.name <- 'PCA_lapply_cmp'
+source('setup_PCA.R')
+library(vecapply)
 
-setup <- function(args=c('1000000', '10')) {
-    n<-as.integer(args[1])
-    if(is.na(n)){ n <- 1000000L }
-    
-    nvar <-as.integer(args[2])
-    if(is.na(nvar)){ nvar <- 10L }
-    
-    
-    X <- matrix(runif(n*nvar, 0, 10), nrow=nvar, ncol=n) 
-    X <- lapply(1:n, function(i){X[,i]})
-    data <- list(X = X);
-    
-    return(data)
-}
-
-run <- function(data) {
-    
+run <- function(dataset) {
+    X <- dataset$X
     
     cross.func <- function(x) {
         tcrossprod(x)
@@ -29,8 +17,6 @@ run <- function(data) {
         x
     }
     
-    X <- data$X
-
     len <- length(X)
     XC <- Reduce('+', lapply(X, cross.func))
     vMean <- Reduce('+', lapply(X, mean.func)) / len
@@ -39,7 +25,7 @@ run <- function(data) {
     eigen(covM)
 }
 
-
+run <- va_cmpfun(run)
 
 if (!exists('harness_argc')) {
     data <- setup(commandArgs(TRUE))
