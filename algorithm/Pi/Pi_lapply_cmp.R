@@ -1,22 +1,12 @@
-# Pi: monte-carlo method
+# Monte-Carlo Pi - lapply based solution with vecapply
 # 
-# Input: rand list, each element is [rand1 rand2]. 
-#   The argument is the input size of rand list, 10M by default
 # Author: Haichuan Wang
 ###############################################################################
-
+app.name <- 'Pi_lapply'
+source('setup_Pi.R')
 library(vecapply)
-setup <- function(args=c('20000000')) {
-    n<-as.integer(args[1])
-    if(is.na(n)){ n <- 20000000L }
-        
-    rdata <- runif(n*2) 
-    list_data <- lapply(1:n, function(i){rdata[(2*i-1):(2*i)]})
-    
-    return(list_data)
-}
 
-run <- function(list_data) {
+run <- function(S) {
     
     #X includes "1" column, Y column vec
     sample.func <- function(aSample) {
@@ -27,10 +17,10 @@ run <- function(list_data) {
         }
     }
     
-    sampleOut <- lapply(list_data, sample.func)
+    sampleOut <- lapply(S, sample.func)
     
     reduceCount <- Reduce('+', sampleOut)
-    mcPi <- 4.0 * reduceCount / length(list_data)
+    mcPi <- 4.0 * reduceCount / length(S)
     
     cat('Pi = ', mcPi, '\n');
 }
