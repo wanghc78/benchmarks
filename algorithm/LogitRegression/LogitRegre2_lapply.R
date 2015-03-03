@@ -1,8 +1,14 @@
-app.name <- "LogitRegression2_lapply"
-source("setup_logitRegre.R")
-
+# LogitRegre - lapply based algorithm (from SparkR)
+# 
+# Author: Haichuan Wang
+###############################################################################
+app.name <- 'LogitRegre2_lapply'
+source('setup_LogitRegre.R')
 
 run <- function(data) {
+    YX <- data$YX
+    nvar <- data$nvar
+    niter<-data$niter
     
     #X includes "1" column, Y column vec
     grad.func <- function(yx) {
@@ -13,12 +19,8 @@ run <- function(data) {
         x * ((logit - 1) * y)
     }
     
-    YX <- data$YX
-    ndim <- data$ndim
-    niter<-data$niter
-    
     # Initialize w to a random value
-    w <- double(ndim) #runif(n=ndim, min = -1, max = 1)
+    w <- double(nvar) #runif(n=nvar, min = -1, max = 1)
     cat("Initial w: ", w, "\n")
     
     ptm <- proc.time() #previous iteration's time

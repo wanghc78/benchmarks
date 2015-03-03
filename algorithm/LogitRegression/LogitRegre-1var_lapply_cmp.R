@@ -1,9 +1,9 @@
-# LogitRegre - lapply based algorithm with vecapply
+# LogitRegre-1var - lapply based algorithm with vecapply
 # 
 # Author: Haichuan Wang
 ###############################################################################
-app.name <- 'LogitRegre_lapply_cmp'
-source('setup_LogitRegre.R')
+app.name <- 'LogitRegre-1var_lapply_cmp'
+source('setup_LogitRegre-1var.R')
 library(vecapply)
 
 run <- function(dataset) {  
@@ -15,8 +15,7 @@ run <- function(dataset) {
     #X includes "1" column, Y column vec
     grad.func <- function(yx) {
         y <- yx[1]
-        x <- yx  
-        x[1] <- 1 #modify the 1st column
+        x <- c(1, yx[2])
         logit <- 1/(1 + exp(-sum(theta*x)))
         (y-logit) * x
     }

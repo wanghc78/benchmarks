@@ -1,48 +1,37 @@
-# lr by built-in lm
+# LogitRegre - lapply based algorithm
 # 
-# Suppose y = ax + b
-# Input: y vectors, x vectors
-#   The argument is the input size of x/y, 1M by default
 # Author: Haichuan Wang
 ###############################################################################
+app.name <- 'LogitRegre_lapply'
+source('setup_LogitRegre.R')
 
-setup <- function(args=c('1000000', '100')) {
-    n<-as.integer(args[1])
-    if(is.na(n)){ n <- 1000000L }
+run <- function(dataset) {  
+    YX <- dataset$YX
+    niter<-data$niter
     
-    niter<-as.integer(args[2])
-    if(is.na(niter)){ niter <- 100L }
-    
-    x<- runif(n, 0, 10)  
-    y<- 1/(1+exp(-(1+x))) + rnorm(n) * 0.05 # now the coefficient is 1
-    yx <- lapply(1:n, function(i){c(y[i],x[i])})
-    data <- list(yx=yx, niter=niter);
-    
-    return(data)
-}
-
-run <- function(data) {
+    theta <- double(length(YX[[1]])) #initial guess as 0
     
     #X includes "1" column, Y column vec
     grad.func <- function(yx) {
         y <- yx[1]
-        x <- c(1, yx[2])
+        x <- yx  
+        x[1] <- 1 #modify the 1st column
         logit <- 1/(1 + exp(-sum(theta*x)))
         (y-logit) * x
     }
-    
-    yx <- data$yx
-    niter<-data$niter
-    theta <- double(length(yx[[1]])) #initial guess as 0
 
+    ptm <- proc.time() #previous iteration's time
     for(iter in 1:niter) {
-        delta <- lapply(yx, grad.func)
+        delta <- lapply(YX, grad.func)
         #cat('delta =', delta, '\n')
-        theta <- theta + Reduce('+', delta) / length(yx)
+        theta <- theta + Reduce('+', delta) / length(YX)
+        ctm <- proc.time()
+        cat("[INFO]Iter", iter, "Time =", (ctm - ptm)[[3]], '\n')
+        ptm <- ctm
         cat('theta =', theta, '\n')
         #print(cost(X,y, theta))
     }
-    print(theta)
+    cat('Final theta =', theta, '\n')
 }
 
 if (!exists('harness_argc')) {
