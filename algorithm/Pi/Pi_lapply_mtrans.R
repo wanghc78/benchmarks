@@ -2,7 +2,7 @@
 # 
 # Author: Haichuan Wang
 ###############################################################################
-app.name <- 'Pi_lapply'
+app.name <- 'Pi_lapply_mtrans'
 source('setup_Pi.R')
 library(vecapply)
 
