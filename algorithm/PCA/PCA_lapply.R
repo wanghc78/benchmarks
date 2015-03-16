@@ -8,6 +8,8 @@ source('setup_PCA.R')
 run <- function(dataset) {
     X <- dataset$X
     
+    ptm <- proc.time() #previous iteration's time
+    
     cross.func <- function(x) {
         tcrossprod(x)
     }
@@ -22,6 +24,7 @@ run <- function(dataset) {
     
     covM <- XC/len - tcrossprod(vMean)
     eigen(covM)
+    cat("[INFO]Time =", (proc.time()-ptm)[[3]], '\n')
 }
 
 if (!exists('harness_argc')) {

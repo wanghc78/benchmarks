@@ -13,7 +13,7 @@ setup <- function(args=c('1000000', '10', '15')) {
     n<-as.integer(args[1])
     if(is.na(n)){ n <- 1000000L }
     
-    ncluster<-as.integer(args[3])
+    ncluster<-as.integer(args[2])
     if(is.na(ncluster)){ ncluster <- 10L }
     
     niter<-as.integer(args[3])

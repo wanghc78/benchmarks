@@ -13,7 +13,7 @@ setup <- function(args=c('1000000', '50')) {
     n<-as.integer(args[1])
     if(is.na(n)){ n <- 1000000L }
     
-    niter<-as.integer(args[3])
+    niter<-as.integer(args[2])
     if(is.na(niter)){ niter <- 50L }
     
     cat('[INFO][', app.name, '] n=', n, ', niter=', niter, '\n', sep='')

@@ -14,6 +14,7 @@ run <- function(dataset) {
     clusters<- dataset$clusters
     k <- dataset$k
     
+    ptm <- proc.time() #previous iteration's time
     #outer loop, map function for each test
     
     V_kNN.fun <- function(V_test) {
@@ -53,6 +54,7 @@ run <- function(dataset) {
     #get the cl
     V_test_cl <- (function(test_item){test_item$label})(V_out_list_test)
     test_cl <- factor(V_test_cl)
+    cat("[INFO]Time =", (proc.time()-ptm)[[3]], '\n')
     print(summary(test_cl))
 }
 

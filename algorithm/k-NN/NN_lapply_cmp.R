@@ -2,7 +2,7 @@
 # 
 # Author: Haichuan Wang
 ###############################################################################
-app.name <- "NN_lapply"
+app.name <- "NN_lapply_cmp"
 source('setup_k-NN.R')
 library(vecapply)
 
@@ -13,6 +13,8 @@ run <- function(dataset) {
     list_test<-dataset$test_set
     test_n <- length(list_test)
     clusters<- dataset$clusters
+    
+    ptm <- proc.time() #previous iteration's time
     
     #outer loop, map function for each test
     NN.fun <- function(test_item) {
@@ -34,6 +36,7 @@ run <- function(dataset) {
     #get the cl
     test_cl_vec <- sapply(out_list_test, function(test_item){test_item$label})
     test_cl <- factor(test_cl_vec)
+    cat("[INFO]Time =", (proc.time()-ptm)[[3]], '\n')
     print(summary(test_cl))
 }
 

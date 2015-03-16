@@ -6,6 +6,7 @@ app.name <- 'Pi_lapply'
 source('setup_Pi.R')
 
 run <- function(S) {
+    ptm <- proc.time() #previous iteration's time
     
     #X includes "1" column, Y column vec
     sample.func <- function(aSample) {
@@ -21,6 +22,7 @@ run <- function(S) {
     reduceCount <- Reduce('+', sampleOut)
     mcPi <- 4.0 * reduceCount / length(S)
     
+    cat("[INFO]Time =", (proc.time()-ptm)[[3]], '\n')
     cat('Pi = ', mcPi, '\n');
 }
 

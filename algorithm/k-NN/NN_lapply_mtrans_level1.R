@@ -15,6 +15,7 @@ run <- function(dataset) {
     test_n <- length(list_test)
     clusters<- dataset$clusters
     
+    ptm <- proc.time() #previous iteration's time
     #outer loop, map function for each test
     
     V_NN.fun <- function(V_test) {
@@ -39,6 +40,7 @@ run <- function(dataset) {
     #get the cl
     test_cl_vec <- sapply(out_list_test, function(test_item){test_item$label})
     test_cl <- factor(test_cl_vec)
+    cat("[INFO]Time =", (proc.time()-ptm)[[3]], '\n')
     print(summary(test_cl))
 }
 

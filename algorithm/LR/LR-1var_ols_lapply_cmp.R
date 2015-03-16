@@ -8,6 +8,9 @@ library(vecapply)
 
 run <- function(dataset) {
     YX <- dataset$YX
+    
+    ptm <- proc.time() #previous iteration's time
+    
     #X includes "1" column, Y column vec    
     A.func <- function(yx) {
         x <- c(1, yx[2])
@@ -24,6 +27,7 @@ run <- function(dataset) {
     b <- Reduce('+', lapply(YX, b.func))
     
     theta <- solve(A, b)
+    cat("[INFO]Time =", (proc.time()-ptm)[[3]], '\n')
     print(theta)
 }
 

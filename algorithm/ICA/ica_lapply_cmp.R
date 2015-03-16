@@ -5,7 +5,7 @@
 # The code is based on FastICA R package http://cran.r-project.org/web/packages/fastICA/
 # Un-mixing n mixed independent uniforms
 ###############################################################################
-app.name <- "ICA_lapply"
+app.name <- "ICA_lapply_cmp"
 source('setup_ica.R')
 library(vecapply)
 

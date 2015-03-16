@@ -13,6 +13,8 @@ run <- function(dataset) {
     clusters<- dataset$clusters
     k <- dataset$k
     
+    ptm <- proc.time() #previous iteration's time
+    
     #outer loop, map function for each test
     kNN.fun <- function(test_item) {
         #calculate the distance to all 
@@ -38,9 +40,7 @@ run <- function(dataset) {
         test_item
     }
     
-    ptm <- proc.time() #previous iteration's time
     out_list_test <- lapply(list_test, kNN.fun)
-    
     
     #get the cl
     test_cl <- lapply(out_list_test, function(test_item){test_item$label})
