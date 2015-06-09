@@ -15,7 +15,7 @@ run <- function(dataset) {
     niter <- dataset$niter
     n <- length(X) #num of samples
 
-    message("Whitening")
+    print("Whitening")
     cross.func <- function(x) {
         tcrossprod(x)
     }
