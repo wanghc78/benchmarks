@@ -1,23 +1,36 @@
 #!/bin/bash
 
-cd k-means
-echo k-Means Inner Apply Vec 1M points, 10 cluster, 15 iterations
-Rscript --vanilla k-means-1D_lapply_mtrans_level2.R 1000000 10 15 | ../../../valor/report.py
-echo k-Means Both Applys Vec 1M points, 10 cluster, 15 iterations
-Rscript --vanilla k-means-1D_lapply_mtrans_opt.R 1000000 10 15 | ../../../valor/report.py
-echo k-Means-nD Inner Apply Vec 1M 3D points, 10 cluster, 15 iterations
-Rscript --vanilla k-means_lapply_mtrans_level2.R 1000000 10 3 15 | ../../../valor/report.py
-echo k-Means-nD Inner Applys Vec 1M 3D points, 10 cluster, 15 iterations
-Rscript --vanilla k-means_lapply_mtrans_opt.R 1000000 10 3 15 | ../../../valor/report.py
-cd ..
 cd k-NN
-echo NN Inner Apply Vec 10k 3D Training samples, 10K 3D testing samples, 10 clusters
-Rscript --vanilla NN_lapply_mtrans_level2.R 10000 10000 10 | ../../../valor/report.py
-echo NN Both Applys Vec 10k 3D Training samples, 10K 3D testing samples, 10 clusters
-Rscript --vanilla NN_lapply_mtrans.R 10000 10000 10 | ../../../valor/report.py
-echo k-NN Inner Apply Vec 10k 3D Training samples, 10K 3D testing samples, 10 clusters, k=5
-Rscript --vanilla k-NN_lapply_mtrans_level2.R 10000 10000 10 5 | ../../../valor/report.py
-echo k-NN Both Applys Vec 10k 3D Training samples, 10K 3D testing samples, 10 clusters, k=5
-Rscript --vanilla k-NN_lapply_mtrans.R 10000 10000 10 5 | ../../../valor/report.py
+echo NN nonVec 10k 3D Training samples, 10K 3D testing samples, 10 clusters
+Rscript --vanilla NN_lapply.R 10000 10000 10 | ../../../valor/report.py
+echo NN Vec 10k 3D Training samples, 10K 3D testing samples, 10 clusters
+Rscript --vanilla NN_lapply_cmp.R 10000 10000 10 | ../../../valor/report.py
+echo k-NN nonVec 10k 3D Training samples, 10K 3D testing samples, 10 clusters, k=5
+Rscript --vanilla k-NN_lapply.R 10000 10000 10 5 | ../../../valor/report.py
+echo k-NN Vec 10k 3D Training samples, 10K 3D testing samples, 10 clusters, k=5
+Rscript --vanilla k-NN_lapply_cmp.R 10000 10000 10 5 | ../../../valor/report.py
 cd ..
+cd LR
+echo LR-OLS nonVec 1M points
+Rscript --vanilla LR-1var_ols_lapply.R 1000000 | ../../../valor/report.py
+echo LR-OLS Vec 1M points
+Rscript --vanilla LR-1var_ols_lapply_cmp.R 1000000 | ../../../valor/report.py
+echo LR-OLS-n nonVec 1M length 10 vec variable
+Rscript --vanilla LR_ols_lapply.R 1000000 10| ../../../valor/report.py
+echo LR-OLS-n Vec 1M length 10 vec variable
+Rscript --vanilla LR_ols_lapply_cmp.R 1000000 10 | ../../../valor/report.py
+cd ..
+cd Pi
+echo nonVec Monte Carlo 1M points
+Rscript --vanilla Pi_lapply.R 1000000 | ../../../valor/report.py
+echo Vec Monte Carlo 1M points
+Rscript --vanilla Pi_lapply.R 1000000 | ../../../valor/report.py
+cd ..
+cd PCA
+echo nonVec PCA 1M length 10 vector samples
+Rscript --vanilla PCA_lapply.R 1000000 10 | ../../../valor/report.py
+echo nonVec PCA 1M length 10 vector samples
+Rscript --vanilla PCA_lapply.R 1000000 10 | ../../../valor/report.py
+cd ..
+
 
