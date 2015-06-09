@@ -24,13 +24,13 @@ cd Pi
 echo nonVec Monte Carlo 1M points
 Rscript --vanilla Pi_lapply.R 1000000 | ../../../valor/report.py
 echo Vec Monte Carlo 1M points
-Rscript --vanilla Pi_lapply.R 1000000 | ../../../valor/report.py
+Rscript --vanilla Pi_lapply_cmp.R 1000000 | ../../../valor/report.py
 cd ..
 cd PCA
 echo nonVec PCA 1M length 10 vector samples
 Rscript --vanilla PCA_lapply.R 1000000 10 | ../../../valor/report.py
 echo nonVec PCA 1M length 10 vector samples
-Rscript --vanilla PCA_lapply.R 1000000 10 | ../../../valor/report.py
+Rscript --vanilla PCA_lapply_cmp.R 1000000 10 | ../../../valor/report.py
 cd ..
 
 
