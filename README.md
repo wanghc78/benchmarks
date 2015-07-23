@@ -113,7 +113,7 @@ run <- function (input) { # input = setup(cmdline_args)
 }
 ```
 
-Please refer [Writing Benchmark](docs/writting_benchmark.md) for additional controls of the benchmark program
+Please refer [Writing Benchmark](docs/writing_benchmark.md) for additional controls of the benchmark program
 
 ## FAQ
 
